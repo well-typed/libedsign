@@ -1,0 +1,79 @@
+.TH EDSIGN 3 "May 2014" "libedsign 0.0.1" "C library"
+.SH NAME
+libedsign \- tiny library for signing and verification
+.SH SYNOPSIS
+.B #include <edsign.h>
+
+.B int edsign_keypair(const uint8_t
+.BI * pass ,
+.B const uint64_t
+.IB passlen ,
+.B const uint32_t
+.IB N ,
+.B const uint32_t
+.IB r ,
+.B const uint32_t
+.IB p ,
+.B uint8_t
+.BI * pkout ,
+.B uint8_t
+.BI * skout );
+
+.B int edsign_rekey_private(const uint8_t
+.BI * oldpass ,
+.B const uint64_t
+.IB oldpasslen ,
+.B const uint8_t
+.BI * newpass ,
+.B const uint64_t
+.IB newpasslen ,
+.B const uint32_t
+.IB N ,
+.B const uint32_t
+.IB r ,
+.B const uint32_t
+.IB p ,
+.B uint8_t
+.BI * skin ,
+.B uint8_t
+.BI * skout );
+
+.B int edsign_sign(const uint8_t
+.BI * pass ,
+.B const uint64_t
+.IB passlen ,
+.B const uint8_t
+.BI * sk ,
+.B const uint8_t
+.BI * msg ,
+.B const uint64_t
+.IB msglen ,
+.B uint8_t
+.BI * out );
+
+.B int edsign_verify(const uint8_t
+.BI * pk ,
+.B const uint8_t
+.BI * sig ,
+.B const uint8_t
+.BI * msg ,
+.B const uint64_t
+.IB msglen );
+
+.SH DESCRIPTION
+.B edsign
+is a tiny, secure library for creating cryptographically strong
+signatures using Ed25519, scrypt, and BLAKE2.
+.SH AUTHOR
+Written by Austin Seipp
+.SH "REPORTING BUGS"
+Report bugs to aseipp@pobox.com
+.br
+edsign home page: <https://foxdie.org/~a/www/libedsign>
+.br
+edsign issue tracker: <https://github.com/thoughtpolice/libedsign/issues>
+.br
+.SH COPYRIGHT
+Copyright \(co 2014 Austin Seipp, Well-Typed LLP. All rights
+reserved. Available under the MIT License:
+<http://www.opensource.org/licenses/mit-license.php>

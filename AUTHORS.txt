@@ -1,0 +1,15 @@
+Author, target of blame:
+
+  Austin Seipp <aseipp [@at] well-typed [.dot] com>
+
+This code is derived from the work of several other people, including:
+
+  - Daniel J. Bernstein
+  - Niels Duif
+  - Tanja Lange
+  - Peter Schwabe
+  - Bo-Yin Yang
+  - Samuel Neves
+  - Colin Percival
+  - Ted Unangst
+  - Andrew M
