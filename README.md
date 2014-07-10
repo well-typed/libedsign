@@ -33,20 +33,16 @@ in the GitHub [issue tracker][].
 
 Master [git repository][gh]:
 
-  * `git clone https://github.com/thoughtpolice/edsign.git`
-
-There's also a [BitBucket mirror][bb]:
-
-  * `git clone https://bitbucket.org/thoughtpolice/edsign.git`
+  * `git clone https://github.com/well-typed/libedsign.git`
 
 ## Authors
 
-See [AUTHORS.txt](https://raw.github.com/thoughtpolice/edsign/master/AUTHORS.txt).
+See [AUTHORS.txt](https://raw.github.com/well-typed/libedsign/master/AUTHORS.txt).
 
 ## License
 
 Dual MIT/BSD2. See
-[LICENSE.txt](https://raw.github.com/thoughtpolice/edsign/master/LICENSE.txt)
+[LICENSE.txt](https://raw.github.com/well-typed/libedsign/master/LICENSE.txt)
 for specific terms of copyright and redistribution.
 
 ## Cryptography Notice
