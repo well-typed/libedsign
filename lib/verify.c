@@ -8,6 +8,7 @@
 */
 
 #include "edsign-private.h"
+#include "blake2.h"
 #include "ed25519.h"
 #include "sign.h"
 #include "util.h"
@@ -30,10 +31,11 @@ int
 edsign_verify(const uint8_t* pk, const uint8_t *sig,
               const uint8_t* msg,  const uint64_t msglen)
 {
-  int res = -1;
-  uint64_t smsglen, tlen;
-  uint8_t* smsg = NULL;
-  uint8_t* temp = NULL;
+  int res = EDSIGN_EINVAL;
+  uint64_t tlen;
+  uint8_t hash[crypto_hash_blake2b_BYTES];
+  uint8_t smsg[crypto_hash_blake2b_BYTES + crypto_sign_ed25519_BYTES];
+  uint8_t out[crypto_hash_blake2b_BYTES + crypto_sign_ed25519_BYTES];
 
   if (pk  == NULL) return EDSIGN_EINVAL;
   if (sig == NULL) return EDSIGN_EINVAL;
@@ -43,19 +45,15 @@ edsign_verify(const uint8_t* pk, const uint8_t *sig,
   if (0 != edsign_memcmp(sig, (uint8_t*)PKALG, 2)) return EDSIGN_EINVAL;
   if (0 != edsign_memcmp(pk+2, sig+2, 8)) return EDSIGN_EKEY;
 
-  smsglen = msglen+crypto_sign_ed25519_BYTES;
-  temp = malloc(smsglen);
-  smsg = malloc(smsglen);
-  if (temp == NULL || smsg == NULL) goto exit;
+  /* Create ed25519 message */
+  crypto_hash_blake2b(hash, msg, msglen); /* Hash message */
+  memcpy(smsg,    sig+10, 64);            /* Copy signature */
+  memcpy(smsg+64, hash, sizeof(hash));    /* Copy hash */
 
-  memcpy(smsg,    sig+10, 64);  /* Copy signature */
-  memcpy(smsg+64, msg, msglen); /* Copy message */
-
-  res = crypto_sign_open(temp, &tlen, smsg, smsglen, pk+10);
+  /* Verify signature */
+  res = crypto_sign_open(out, &tlen, smsg, sizeof(smsg), pk+10);
+  assert(tlen == crypto_hash_blake2b_BYTES);
   if (res != 0) res = EDSIGN_ESIG; /* Signature failure */
- exit:
-  free(smsg);
-  free(temp);
   return res;
 }
 

@@ -165,8 +165,7 @@ edsign_rekey_priv(const uint8_t* oldpass, const uint64_t oldpasslen,
   fp     = pp; pp += 8;
   enckey = pp;
 
-  /* Iff there are no set scrypt parameters, then there was no
-  ** password. Begin rekeying. */
+  /* Iff there are no scrypt parameters, then there was no. Rekey. */
   if (Nold == 0 || rold == 0 || pold == 0) {
     edsign_bzero(key, sizeof(key));
     goto rekey;

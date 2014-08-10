@@ -10,6 +10,7 @@
 #ifndef _EDSIGN_PRIVATE_H_
 #define _EDSIGN_PRIVATE_H_
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -119,7 +120,7 @@
 /* -------------------------------------------------------------------------- */
 /* -- Macros ---------------------------------------------------------------- */
 
-#define QUIET_EXPORT __attribute__ ((visibility("default")))
+#define EDSIGN_EXPORT __attribute__ ((visibility("default")))
 
 #if !defined(COMPILER_COMPCERT)
 #define likely(x)   __builtin_expect((x),1)

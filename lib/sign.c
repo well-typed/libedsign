@@ -46,7 +46,7 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
   uint8_t* enckey;
   uint8_t key[crypto_sign_ed25519_SECRETKEYBYTES];
   uint8_t hash[crypto_hash_blake2b_BYTES];
-  uint8_t* sig = NULL;
+  uint8_t sig[crypto_hash_blake2b_BYTES + crypto_sign_ed25519_BYTES];
   uint64_t siglen;
   uint64_t i;
   int res = EDSIGN_ERROR;
@@ -101,13 +101,12 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
     goto exit;
   }
 
-  /* Sign */
-  sig = malloc(msglen+crypto_sign_ed25519_BYTES);
-  if (sig == NULL) goto exit;
-
+  /* Hash the message and sign the hash. */
+  crypto_hash_blake2b(hash, msg, msglen);
   /* Note: the first 64 bytes of a signed Ed25519 message constitute
   ** the signature by itself. See memcpy below. */
-  crypto_sign_ed25519(sig, &siglen, msg, msglen, key);
+  crypto_sign_ed25519(sig, &siglen, hash, sizeof(hash), key);
+  assert(siglen == sizeof(sig));
 
   /* Write signature */
   pout = out;
@@ -115,10 +114,9 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
   memcpy(pout, fp, 8);    pout += 8;
   memcpy(pout, sig, 64);
 
-  edsign_bzero(sig, msglen+crypto_sign_ed25519_BYTES);
+  edsign_bzero(sig, sizeof(sig));
   res = EDSIGN_OK;
  exit:
-  free(sig);
   edsign_bzero(key, sizeof(key));
   edsign_bzero(hash, sizeof(hash));
   return res;
