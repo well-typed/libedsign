@@ -14,6 +14,18 @@
 
 #define PKALG "Ed"
 
+/**
+ * edsign_verify(pk, sig, msg, msglen):
+ *
+ * Verify the message ${msg} (of size ${msglen}) with signature ${sig}
+ * was signed by the public key ${pk}. ${msg}, ${pk} and ${sig} can
+ * not be NULL.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_EKEY if ${pk} is an incorrect public key for the signature
+ * - Returns EDSIGN_ESIG if the ${sig} and ${msg} failed to verify
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_verify(const uint8_t* pk, const uint8_t *sig,
               const uint8_t* msg,  const uint64_t msglen)

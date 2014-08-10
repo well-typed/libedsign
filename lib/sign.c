@@ -18,6 +18,19 @@
 #define PKALG "Ed"
 #define KDFALG "SK"
 
+/**
+ * edsign_sign(pass, passlen, sk, msg, msglen, sig):
+ *
+ * Sign a message ${msg} with the secret key ${sk} (optionally
+ * encrypted using ${pass}) and return the signature ${sig} of the
+ * resulting message. ${msg}, ${sk} and ${sig} can not be NULL.
+ *
+ * The signature ${sig} must be at least edsign_sign_BYTES in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_EPASSWD if the password is invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_sign(const uint8_t* pass, const uint64_t passlen,
             const uint8_t* sk,
@@ -38,29 +51,32 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
   uint64_t i;
   int res = EDSIGN_ERROR;
 
+  /* All arguments must be valid */
   if (msg == NULL) return EDSIGN_EINVAL;
   if (out == NULL) return EDSIGN_EINVAL;
   if (sk  == NULL) return EDSIGN_EINVAL;
 
   pp = (uint8_t*)sk;
 
-  /* Basics: verification, decoding parameters */
+  /* Basics: header verification, decoding parameters */
   if (0 != edsign_memcmp(pp, (uint8_t*)PKALG, 2)) return EDSIGN_EINVAL;
   pp += 2;
 
   if (0 != edsign_memcmp(pp, (uint8_t*)KDFALG, 2)) return EDSIGN_EINVAL;
   pp += 2;
 
+  /* scrypt parameters */
   N = edsign_le32dec(pp); pp += 4;
   r = edsign_le32dec(pp); pp += 4;
   p = edsign_le32dec(pp); pp += 4;
 
+  /* Key parameters */
   salt   = pp; pp += 16;
   digest = pp; pp += 8;
   fp     = pp; pp += 8;
   enckey = pp;
 
-  /* Derive key */
+  /* Derive keystream from passphrase if provided. */
   if (pass != NULL) {
     uint64_t pow2N = ((uint64_t)1) << N;
     res = crypto_scrypt(pass, passlen, salt, 16, pow2N, r, p,
@@ -71,13 +87,15 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
     }
   }
   else {
+    /* If there's no key, zero the keystream buffer. */
     edsign_bzero(key, sizeof(key));
   }
 
-  /* Compute key hash */
+  /* Decrypt secret key (iff password was provided) */
   for (i = 0; i < sizeof(key); ++i) key[i] ^= enckey[i];
-  crypto_hash_blake2b(hash, key, sizeof(key));
 
+  /* Compute and check secret key digest */
+  crypto_hash_blake2b(hash, key, sizeof(key));
   if (0 != edsign_memcmp(hash, digest, 8)) {
     res = EDSIGN_EPASSWD;
     goto exit;
@@ -106,6 +124,18 @@ edsign_sign(const uint8_t* pass, const uint64_t passlen,
   return res;
 }
 
+/**
+ * edsign_signature_fingerprint(sig, fprint):
+ *
+ * Get the fingerprint for the signature ${sig} and store it in
+ * ${fprint}. ${sig} and ${fprint} can not be NULL.
+ *
+ * The fingerprint ${fprint} must be at least edsign_fingerprint_BYTES
+ * in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_signature_fingerprint(const uint8_t* sig, uint8_t* out)
 {

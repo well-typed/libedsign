@@ -18,6 +18,28 @@
 #define PKALG "Ed"
 #define KDFALG "SK"
 
+/**
+ * edsign_keypair(pass, passlen, N, r, p, pk, sk):
+ *
+ * Generate a public key ${pk} and secret key ${sk}, with the secret
+ * key optionally encrypted using the password ${pass}. If ${pass} is
+ * not NULL, then the returned secret key is encrypted with
+ * scrypt. If ${pass} is NULL, then the secret key is unencrypted.
+ *
+ * The arguments ${N}, ${r} and ${p} control CPU and memory usage for
+ * scrypt, and are only relevant when ${pass} is not NULL. Running
+ * time of scrypt is proportional to all of ${N}, ${r} and
+ * ${p}. Memory usage of scrypt is approximately 128*${r}*(2^${N})
+ * bytes. For example, for N = 14, r = 8, and p = 1, memory usage is
+ * 128*8*(2^14) = 16 megabytes. ${p} may be used to independently tune
+ * running time.
+ *
+ * The public key ${pk} must be at least edsign_PUBLICKEYBYTES in size.
+ * The secret key ${sk} must be at least edsign_SECRETKEYBYTES in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_keypair(const uint8_t* pass, const uint64_t passlen,
                const uint32_t N, const uint32_t r, const uint32_t p,
@@ -38,7 +60,7 @@ edsign_keypair(const uint8_t* pass, const uint64_t passlen,
   edsign_randombytes(salt, sizeof(salt));
   edsign_randombytes(fingerprint, sizeof(fingerprint));
   crypto_sign_ed25519_keypair(pk, sk);
-  crypto_hash_blake2b(digest, sk, sizeof(sk));
+  crypto_hash_blake2b(digest, sk, sizeof(sk)); /* Key digest */
 
   /* -- Public key -- */
   pp = pkout;
@@ -85,6 +107,24 @@ edsign_keypair(const uint8_t* pass, const uint64_t passlen,
   return res;
 }
 
+/**
+ * edsign_rekey_priv(oldpass, oldpasslen, newpass, newpasslen, N, r, p, so, sn):
+ *
+ * Rekey the private key ${so} with the old password ${oldpass},
+ * under the new password ${newpass}, with the new scrypt parameters
+ * ${N}, ${r}, and ${p}, and store it in ${sn}. ${so} and ${sn} can
+ * not be NULL.
+ *
+ * If ${oldpass} is NULL, it is assumed there was no prior
+ * password. If ${newpass} is NULL, the password is removed, and ${N},
+ * ${r}, and ${p} are ignored.
+ *
+ * The secret key ${sn} must be at least edsign_SECRETKEYBYTES in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_EPASSWD if the password is invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_rekey_priv(const uint8_t* oldpass, const uint64_t oldpasslen,
                   const uint8_t* newpass, const uint64_t newpasslen,
@@ -194,6 +234,18 @@ edsign_rekey_priv(const uint8_t* oldpass, const uint64_t oldpasslen,
   return res;
 }
 
+/**
+ * edsign_pubkey_fingerprint(pk, fprint):
+ *
+ * Get the fingerprint for the public key ${pk} and store it in
+ * ${fprint}. ${pk} and ${fprint} can not be NULL.
+ *
+ * The fingerprint ${fprint} must be at least edsign_fingerprint_BYTES
+ * in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_pubkey_fingerprint(const uint8_t* pk, uint8_t* out)
 {
@@ -205,6 +257,18 @@ edsign_pubkey_fingerprint(const uint8_t* pk, uint8_t* out)
   return EDSIGN_OK;
 }
 
+/**
+ * edsign_secretkey_fingerprint(sk, fprint):
+ *
+ * Get the fingerprint for the secret key ${sk} and store it in
+ * ${fprint}. ${sk} and ${fprint} can not be NULL.
+ *
+ * The fingerprint ${fprint} must be at least edsign_fingerprint_BYTES
+ * in size.
+ *
+ * - Returns EDSIGN_EINVAL if the arguments are invalid
+ * - Returns EDSIGN_OK under normal circumstances
+ */
 int
 edsign_secretkey_fingerprint(const uint8_t* sk, uint8_t* out)
 {
