@@ -12,6 +12,7 @@
 *.t
 *-vtkat.txt
 *.frama_c.txt
+a.out
 /lib/edsign-amalg.c
 /.sdist
 /result*
