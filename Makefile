@@ -51,7 +51,11 @@ endif
 
 # If we're debugging, we just override OPTIMIZATION above, since we
 # don't want it anyway.
+CFLAGS+=-DDEBUG
 OPT=$(DEBUGOPT)
+else
+# Turn off assertions
+CFLAGS+=-DNDEBUG
 endif
 
 ifeq ($(USING_COMPCERT),YES)

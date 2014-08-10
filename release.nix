@@ -7,7 +7,9 @@ let
   nixcfg = { allowUnfree = true; };
   pkgs   = import <nixpkgs> { config=nixcfg; };
 
-  systems = [ "i686-linux" "x86_64-linux" "x86_64-darwin" ];
+  systems = [ "i686-linux" "x86_64-linux"
+             #"x86_64-darwin"
+            ];
 
   version = builtins.readFile ./VERSION +
     (pkgs.lib.optionalString (!officialRelease)
@@ -106,6 +108,7 @@ let
 
         enableParallelBuilding = true;
         doCheck      = true;
+        checkFlags   = [ "DEBUG=1" ];
         dontInstall  = true;
       }
     ));
@@ -209,8 +212,8 @@ let
       { name = "edsign-${version}";
         constituents =
           [ tarball amalgamation
-            build-amalgamation.i686-linux build-amalgamation.x86_64-linux build-amalgamation.x86_64-darwin
-            build.i686-linux build.x86_64-linux build.x86_64-darwin
+            build-amalgamation.i686-linux build-amalgamation.x86_64-linux # build-amalgamation.x86_64-darwin
+            build.i686-linux build.x86_64-linux # build.x86_64-darwin
             tests.i686-linux tests.x86_64-linux # tests.x864_64-darwin
            #deb_debian7i386    deb_debian7x86_64
            #deb_ubuntu1004i386 deb_ubuntu1004x86_64
