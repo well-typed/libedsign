@@ -31,7 +31,7 @@ int
 edsign_verify(const uint8_t* pk, const uint8_t *sig,
               const uint8_t* msg,  const uint64_t msglen)
 {
-  int res = EDSIGN_EINVAL;
+  int res = EDSIGN_ERROR;
   uint64_t tlen;
   uint8_t hash[crypto_hash_blake2b_BYTES];
   uint8_t smsg[crypto_hash_blake2b_BYTES + crypto_sign_ed25519_BYTES];
