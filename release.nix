@@ -56,7 +56,7 @@ let
         make -C ../$relname-orig sdistprep # Generate amalgamation
         cp ../$relname-orig/lib/edsign-amalg.c ../$relname/edsign.c
         cp ../$relname-orig/etc/amalg/Makefile.in ../$relname/Makefile
-        for x in LICENSE.txt README.md VERSION lib/edsign.h; do
+        for x in LICENSE.txt README.md VERSION CHANGELOG.md lib/edsign.h; do
           cp ../$relname-orig/$x ../$relname
         done
         mkdir $out/tarballs
