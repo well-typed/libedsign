@@ -16,7 +16,9 @@ edsign_memcmp(const uint8_t* x, const uint8_t* y, const size_t n)
   if (n == 0) return 0;
 
   for (i = 0; i < n; ++i) {
+#if !defined(COMPILER_COMPCERT)
     __asm__ __volatile__("");
+#endif
     d |= x[i]^y[i];
   }
 
@@ -28,7 +30,9 @@ edsign_bzero(uint8_t* dst, const size_t n)
 {
   size_t i;
   for (i = 0; i < n; ++i) {
+#if !defined(COMPILER_COMPCERT)
     __asm__ __volatile__("");
+#endif
     dst[i] = 0;
   }
 

@@ -7,7 +7,7 @@ let
       name = "libedsign-env";
       src  = ./.;
       buildInputs =
-        [ git xz clang gcc framac
+        [ git xz clang gcc framac compcert
 	  perl perlPackages.ListMoreUtils
 	];
     };
